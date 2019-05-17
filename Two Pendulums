@@ -1,0 +1,103 @@
+clear
+
+%number of timesteps
+TT = 100;
+X=[]
+V=[]
+
+%initial velocities
+v10 = -2
+v20 = -2
+
+%initial position
+x10 = 0;
+x20 = -1;
+
+%calculate amplitudes
+A1 = sqrt(x10^2 +v10^2);
+A2 = sqrt(x20^2 +v20^2);
+
+%calculate phases
+phi1 = acos(x10/A1);
+phi2 = acos(x20/A2);
+
+%calculate frequencies
+w1 = v10/(A1*sqrt(1-x10^2/A1^2));
+w2 = v20/(A2*sqrt(1-x20^2/A2^2));
+
+
+
+for tt = 1:TT
+    t=2*pi*(tt-1)/TT;
+    clf
+  %where pendulum is attached
+    c=[0,0];
+    
+    for pendulum = 1:2
+    %specify which parameters to use for each pendulum
+    if pendulum == 1
+A=A1;w=w1;phi=phi1;
+COLOR = 'red'
+    else
+A=A2;w=w2;phi=phi2;
+COLOR = 'blue'
+    end
+        x = A*cos(w*t-phi);
+    y = -sqrt(10-x^2);
+
+    subplot(4,1,[1 2]);
+        %draw the pendulum's rope
+    line([c(1),x],[c(2),y],'color','black','LineWidth',2)
+            %draw the pendulum's bob
+    viscircles([x,y],0.01,'color',COLOR,'LineWidth',20);viscircles([-3,-3],0,'color',COLOR,'LineWidth',20);viscircles([3,3],0,'color','black','LineWidth',3)
+        xlim([-3 3])
+ylim([-3.5 0])
+pbaspect([1 1 1])
+
+%draw velocity arrow
+v = -w*A*sin(w*t-phi);
+vv = 0.4*v;
+
+line([x,x+vv],[y,y],'color','black','LineWidth',2);
+line([x+vv,x+vv-sign(vv)*0.2],[y,y-0.1],'color','black','LineWidth',2);
+line([x+vv,x+vv-sign(vv)*0.2],[y,y+0.1],'color','black','LineWidth',2);
+
+
+
+
+
+    end
+    x1 = A1*cos(w1*t-phi1);
+    x2 = A2*cos(w2*t-phi2);
+    v1 = -w1*A1*sin(w1*t-phi1);
+v2 = -w2*A2*sin(w2*t-phi2);
+
+%compute difference in x and v
+        X = [X,x1-x2];
+        V = [V,v1-v2];
+
+
+                %draw the position difference plot
+    subplot(4,1,3);
+    plot(2*pi*(0:(tt-1))/TT,X)
+        line([0,2*pi],[0,0],'color','black')
+    xlim([0 2*pi])
+ylim([-0.3*(A1+A2) 0.3*(A1+A2)])
+    title('Difference in horizontal positions', 'FontSize',20)
+xlabel('time', 'FontSize',20)
+    ylabel('x_{red}-x_{blue}', 'FontSize',20)
+    
+                    %draw the velocity difference plot
+    subplot(4,1,4);
+    plot(2*pi*(0:(tt-1))/TT,V)
+        line([0,2*pi],[0,0],'color','black')
+    xlim([0 2*pi])
+ylim([-0.3*(A1+A2) 0.3*(A1+A2)])
+        title('Difference in horizontal velocities', 'FontSize',20)
+xlabel('time', 'FontSize',20)
+        ylabel('v_{red}-v_{blue}', 'FontSize',20)
+
+
+drawnow
+    pause(0.1)
+end
